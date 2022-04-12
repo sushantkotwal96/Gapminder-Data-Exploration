@@ -1,0 +1,114 @@
+---
+output:
+  pdf_document: default
+  html_document: default
+---
+```{r}
+install.packages("gghighlight")
+```
+
+
+```{r}
+library(gapminder)
+library(dplyr)
+library(ggplot2)
+library(tidyverse)
+```
+
+
+```{r}
+head(gapminder,5)
+```
+
+```{r}
+gapminder %>%
+  group_by(continent, year) %>%
+  summarise(lifeExp=weighted.mean(lifeExp,pop)) %>%
+  ggplot(aes(x=year, y=lifeExp, color=continent)) +
+  geom_line(size=1) + 
+  ggtitle('Average life expectancy for all continents over time')+
+  geom_point(size=1.5)+
+  xlab('Years (1952 - 2007)') +
+  ylab('Average Life Expectancy')
+
+```
+
+```{r}
+gapminder %>% group_by(continent, year) %>%  summarise(lifeExp=weighted.mean(lifeExp,pop)) -> linearCheck
+
+
+ggplot(linearCheck, aes(x=year, y=lifeExp, color=continent)) +
+  geom_point(size=1.5) +
+  geom_smooth(aes(fill=continent), method="lm")+
+  xlab('Years (1952 - 2007)')+
+  ylab('Average Life Expectancy')+
+  ggtitle('Checking linearity for life expectancy of all continents')
+```
+
+```{r}
+asia_full <- subset(gapminder, continent=='Asia')
+africa_full <- subset(gapminder, continent=='Africa')
+europe_full <- subset(gapminder, continent=='Europe')
+americas_full <- subset(gapminder, continent=='Americas')
+oceania_full <- subset(gapminder, continent=='Oceania')
+```
+
+
+
+
+
+```{r}
+asia_full %>%
+  ggplot(aes(x=year, y=lifeExp,color=country)) + 
+  geom_line(size=1) + 
+  ggtitle('Change in life expectance for every country in Asia over time')+
+  geom_point(size=1.5) + facet_wrap(~country,nrow = 7) + theme(legend.position = "none")+
+xlab('Years (1952 - 2007)')+
+ylab('Life Expectancy')
+
+```
+
+
+```{r}
+subset(asia_full,country=='China') %>%
+  ggplot(aes(x=year, y=lifeExp)) +
+  geom_line(size=1) + 
+  ggtitle('Change in life expectancy for China over time')+
+  geom_point(size=1.5)+
+xlab('Years (1952 - 2007)')+
+ylab('Life Expectancy')
+```
+
+
+
+
+```{r}
+asia_full_filtered <- asia_full%>% filter(country== c('China','Cambodia'))
+
+
+ggplot() +
+  # draw the original data series with grey
+  geom_line(aes(year, lifeExp,group=country), data = asia_full, colour = alpha("black", 0.2)) +
+  # colourise only the filtered data
+  geom_line(aes(year, lifeExp, colour = country), data =asia_full_filtered,size=2) +
+  xlab('Years (1952 - 2007)')+
+  ylab('Life Expectancy')+
+  ggtitle('Life expectancy for China and Cambodia')
+```
+
+
+
+```{r}
+library(gghighlight)
+```
+
+
+
+
+```{r}
+ggplot(data = gapminder, aes(x=lifeExp, y=gdpPercap,color = year)) + geom_point() + facet_wrap(~continent) + ggtitle("Life Expectancy vs. GDP per Capita (according to continent)") + xlab("Life Expectancy") + ylab("GDP per Capita")
+```
+```{r}
+ggplot(data = gapminder, aes(x=gdpPercap, y=lifeExp,color = continent)) + geom_point() + facet_wrap(~year) + ggtitle("Life Expectancy vs. GDP per Capita (according to continent)") + ylab("Life Expectancy") + xlab("GDP per Capita") 
+```
+
